@@ -2,39 +2,99 @@ import select, socket, sys
 import threading
 
 
-def readTopology():
+def read_topology(topo):
     servers = []
     server_cost = []
 
-    top = open("topology.txt", "r")
+    top = open(topo+".txt", "r")
     txt_lines = []
     txt_file = top.readlines()
+    # read file while omitting "\n"
     for l in txt_file:
         txt_lines.append(l.rstrip('\n'))
 
-    servers.append(txt_lines[2].split())
-    servers.append(txt_lines[3].split())
-    servers.append(txt_lines[4].split())
-    servers.append(txt_lines[5].split())
+    # cast needed to use in for loop
+    number_of_servers = int(txt_lines[0])
+    number_of_edges = int(txt_lines[1])
 
-    server_cost.append((txt_lines[6].split()))
-    server_cost.append((txt_lines[7].split()))
-    server_cost.append((txt_lines[8].split()))
-    return txt_lines[0], txt_lines[1], servers, server_cost
+    for x in range(2, number_of_servers+2):
+        servers.append(txt_lines[x].split())
 
+    # +1 for the entry to reach itself " the packet needs to
+    # "include an entry to reach itself with cost 0 i.e. server 1 needs to have an entry of cost 0 to reach server"
+    for x in range(6, number_of_edges+6+1):
+        server_cost.append((txt_lines[x].split()))
 
-# servers is a list of list containing of the 4 servers with their IP address and socket
-num_of_servers, num_of_neigh, servers, server_cost = readTopology()
-print(num_of_servers, num_of_neigh, servers, server_cost)
-
+    return number_of_servers, number_of_edges, servers, server_cost
 
 
+# function that updates
+def init(index):
+    topology = index[0]
+    update_interval = index[1]
+
+    # servers is a list of list containing of the 4 servers with their IP address and socket
+    num_of_servers, num_of_neigh, servers, server_cost = read_topology(topology)
+    print("# of servers:", num_of_servers)
+    print("# of neighbors: ", num_of_neigh)
+    print("servers: ", servers)
+    print("cost: ", server_cost)
+    print("Will update in ", update_interval, " second intervals")
+
+    return None
 
 
+# this function listens for user commands using simple if else statements
+def menu():
+    valid_commands = ['update', 'step', 'packets', 'display', 'disable', 'crash']
+    listener = input()
+    listener = listener.lower()
+
+    while True:
+        if 'update' in listener:
+            #update(listener)
+            print("This is update")
+            break
+        elif listener == 'step':
+            #step()
+            print("This is step")
+            break
+        elif listener == 'packets':
+            # packets()
+            print("This is packets")
+            break
+        elif listener == 'display':
+            # display()
+            print("This is display")
+            break
+        elif "disable" in listener:
+            # disable(listener)
+            print("This is display")
+            break
+        elif listener == 'crash':
+            #crash()
+            print("This is crash")
+            exit()
+            break
+        elif listener not in valid_commands:
+            invalid()
+            break
 
 
+# just says invalid command when an invalid command was input in the program
+def invalid():
+    print("Error Invalid command")
+    menu()
 
 
+def main(p):
+    myServer = init(p)
+    #myServer.run()
+    menu()
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
 
 
 # listening_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
