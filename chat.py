@@ -1,6 +1,8 @@
-import select, socket, sys
+import select, socket, sys, time
 import threading
 
+server_list = []
+cost_list = []
 
 def read_topology(topo):
     servers = []
@@ -35,6 +37,11 @@ def init(index):
 
     # servers is a list of list containing of the 4 servers with their IP address and socket
     num_of_servers, num_of_neigh, servers, server_cost = read_topology(topology)
+
+    global server_list, cost_list
+    server_list = servers
+    cost_list = server_cost
+
     print("# of servers:", num_of_servers)
     print("# of neighbors: ", num_of_neigh)
     print("servers: ", servers)
@@ -52,11 +59,12 @@ def menu():
 
     while True:
         if 'update' in listener:
-            #update(listener)
+            update(listener)
             print("This is update")
             break
         elif listener == 'step':
             #step()
+            time.sleep(3)
             print("This is step")
             break
         elif listener == 'packets':
@@ -85,6 +93,26 @@ def menu():
 def invalid():
     print("Error Invalid command")
     menu()
+
+
+# def update():
+def update(input):
+    info = input.split(" ")
+    server1 = info[1]
+    server2 = info[2]
+    cost = info[3]
+    replace_cost(server1, server2, cost)
+    menu()
+
+
+def replace_cost(server1, server2, cost):
+    for x in cost_list:
+        if x[0] == server1 and x[1] == server2:
+            print('Replacing cost in ', x)
+            x[2] = cost
+            print('New cost: ', x)
+
+
 
 
 def main(p):
