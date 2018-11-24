@@ -144,41 +144,61 @@ def sendMsg(index, message):
 
 
 # this function listens for user commands using simple if else statements
+def step():
+    print("This is step...pause")
+    time.sleep(3)
+    menu()
+
+
+def packets():
+    print("This is packets")
+    menu()
+
+
+def display():
+    print("This is display")
+    menu()
+
+
+def disable(listener):
+    print("This is display")
+    menu()
+
+
+def crash():
+    print("This is crash. Bye")
+    exit()
+    menu()
+
 def menu():
     valid_commands = ['update', 'step', 'packets', 'display', 'disable', 'crash']
+    print("MENU:")
     listener = input()
     listener = listener.lower()
-
     while True:
         if 'update' in listener:
             update(listener)
             print("This is update")
             break
         elif listener == 'step':
-            #step()
-            time.sleep(3)
-            print("This is step")
+            step()
             break
         elif listener == 'packets':
-            # packets()
-            print("This is packets")
+            packets()
             break
         elif listener == 'display':
-            # display()
-            print("This is display")
+            display()
             break
         elif "disable" in listener:
-            # disable(listener)
-            print("This is display")
+            disable(listener)
             break
         elif listener == 'crash':
-            #crash()
-            print("This is crash")
-            exit()
+            crash()
             break
         elif listener not in valid_commands:
             invalid()
             break
+
 
 # just says invalid command when an invalid command was input in the program
 def invalid():
@@ -207,8 +227,9 @@ def main(fileName, interval):
     myServer.run()
     menu()
 
+# py chat.py topo 3
 if __name__ == "__main__":
-    main(sys.argv[2], sys.argv[4])
+    main(sys.argv[1], sys.argv[2])
 
 
 # listening_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
