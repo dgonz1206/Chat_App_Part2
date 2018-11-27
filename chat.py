@@ -5,14 +5,14 @@ listening_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 peers = []
 server_list = []
 cost_list = []
+#array of servers
+servers = []
 
 #function that receives a file and then reads the contents and saves them in corresponding variables
 def readTopology(topo):
-    #array of servers
-    servers = []
     #array of costs for edges
     edgeCost = []
-
+    global servers
     #grabbing the file and reading each line
     top = open(topo+".txt", "r")
     txt_lines = []
@@ -29,13 +29,9 @@ def readTopology(topo):
     for x in range(2, number_of_servers+2):
         servers.append(txt_lines[x].split())
 
-    #grabbing the port for this specific client/server
-    serverPort = servers[0][2]
-
     for x in range(number_of_servers+2, number_of_edges+number_of_servers+2):
         edgeCost.append((txt_lines[x].split()))
 
-    return serverPort
 
 
 # server class that creates a server for each client that is launched
@@ -142,6 +138,24 @@ def sendMsg(index, message):
     print("Message sent to ", peers[i].getpeername()[0])
     peers[i].send(bytes(message, 'utf-8'))
 
+# first parses the string received then uses it with the class client to connect
+def connect(conString):
+    myip = listening_socket.getsockname()[0]
+    # socketInfo = conString.split(" ")
+    # ip = socketInfo[1]
+    ipexists = False
+    for p in peers:
+        if ip == p.getpeername()[0]:
+            ipexists = True
+    if len(peers) > 3:
+        print("Peer limit reached")
+    # elif myip == ip:
+    #     print("Can not connect to your self please check the IP you wish to connect to")
+    # elif ipexists == True:
+    #     print('Connection already exists can not reconnect to same connection')
+    else:
+        Client((socketInfo[1], int(socketInfo[-1])))
+    menu()
 
 # this function listens for user commands using simple if else statements
 def step():
@@ -222,8 +236,8 @@ def replace_cost(server1, server2, cost):
             print('New cost: ', x)
 
 def main(fileName, interval):
-    serverPort = readTopology(fileName)
-    myServer = Server(int(serverPort))
+    readTopology(fileName)
+    myServer = Server(int(servers[0][2]))
     myServer.run()
     menu()
 
