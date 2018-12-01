@@ -5,14 +5,16 @@ import time
 listening_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 UDP_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-peers = []
 server_list = []
-neighbor_cost_list = []
+graph = []
+packs = 0
 number_of_neighbors = 0
 neighbor_ip_and_port = []
 neighbor_sockets = []
 client_sockets = []
 update_interval = 0
+vertices = 0
+mess = ""
 master_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 master_ip_port = (None, None)
 
@@ -21,9 +23,9 @@ def readTopology(topo):
     # array of servers
     global server_list
     # array of costs for edges
-    global neighbor_cost_list
-    neighbor_cost_list = []
+    global graph
     global number_of_neighbors
+    global vertices
 
     # grabbing the file and reading each line
     top = open(topo+".txt", "r")
@@ -35,31 +37,26 @@ def readTopology(topo):
         txt_lines.append(l.rstrip('\n'))
 
     # cast needed to use in for loop
-    number_of_servers = int(txt_lines[0])
+    vertices = int(txt_lines[0])
     number_of_neighbors = int(txt_lines[1])
 
-    for x in range(2, number_of_servers+2):
+    for x in range(2, vertices+2):
         server_list.append(txt_lines[x].split())
 
     # grabbing the port for this specific client/server
     serverPort = server_list[0][2]
 
-    for x in range(number_of_servers+2, number_of_neighbors+number_of_servers+2):
-        neighbor_cost_list.append((txt_lines[x].split()))
+    for x in range(vertices+2, number_of_neighbors+vertices+2):
+        graph.append((txt_lines[x].split()))
     # new
     create_neighbors_ip_and_port()
 
     return serverPort
 
-
-
-
 class UdpServer:
-    def __init__(self, port, interval):
+    def __init__(self, port):
         host = socket.gethostname()
         global master_ip_port
-        global update_interval
-        update_interval = interval
         master_ip_port = (host, port)
         self.listening_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
@@ -84,51 +81,72 @@ class UdpServer:
     # receives messages
     def handler(self, sock):
         while True:
+            global mess
+            global packs
+            packs = packs + 1
             data, addr = sock.recvfrom(1024)
             print('Message from: ', addr)
+            mess = data.decode("utf-8")
             print('Message: ', data.decode("utf-8"))
-
 
 
 # gets ip address and port number and adds to a list of tuples
 def create_neighbors_ip_and_port():
     global neighbor_ip_and_port
     global number_of_neighbors
-    for neighbor in neighbor_cost_list:
+    for neighbor in graph:
         for server in server_list:
             if neighbor[1] == server[0]:
                 #change server[1] to ur ip address
                 neighbor_ip_and_port.append((server[1], int(server[2])))
 
+#bell man ford algorithm
+def bellManFord(node):
+    #initiating the array to have all inf
+    calcs = [float("Inf")] * vertices
+    #then changing the known node to 0 since the cost to itself is 0
+    calcs[node] = 0
+
+    #doing this for the amount of vertices
+    for i in range(vertices-1):
+        #then going through the edges and finding out the best cost path
+        #graph contains all the edges 
+        for x, y, z in graph:
+            if calcs[x-1] != float("Inf") and calcs[x-1] + z < calcs[y-1]:
+                calcs[y-1] = calcs[x-1] + z
+
+    return calcs
+
+#creates the full cost table after going through the bellman forde algorithm
+def generateTable():
+    table = []
+    for i in range(vertices):
+        row = bellManFord(i)
+        table.append(row)
+    return table
 
 def step():
     print('this is step')
     menu()
 
-
 def periodic():
     while True:
         time.sleep(update_interval)
-        for x in neighbor_ip_and_port:
-            master_socket.sendto((bytes('periodic message', "utf-8")), (x[0], x[1]))
-
-
-
+        for x ,y in zip(neighbor_ip_and_port, graph):
+            
+            master_socket.sendto((bytes(str(y[0]), "utf-8")), (x[0], x[1]))
 
 def packets():
-    print("This is packets")
+    print("Number of distance vector packets received since last invocation: ", packs)
     menu()
-
 
 def display():
     print("This is display")
     menu()
 
-
 def disable(senString):
     print("This is disable")
     menu()
-
 
 def crash():
     print("This is crash. Bye")
@@ -160,6 +178,9 @@ def menu():
         elif listener == 'crash':
             crash()
             break
+        elif listener == 'print':
+            print(mess)
+            break
         elif listener not in valid_commands:
             invalid()
             break
@@ -179,21 +200,25 @@ def update(input):
     replace_cost(server1, server2, cost)
     menu()
 
-
 def replace_cost(server1, server2, cost):
-    for x in neighbor_cost_list:
-        if x[0] == server1 and x[1] == server2:
-            print('Replacing cost in ', x)
-            x[2] = cost
-            print('New cost: ', x)
-
+    for x in graph:
+        if x[0] == server1 and x[1] == server2 or x[0] == server2 and x[1] == server1:
+            if cost == "inf":
+                print('Replacing cost in ', x)
+                x[2] = float("Inf")
+                print('New cost: ', x)
+            else:
+                print('Replacing cost in ', x)
+                x[2] = cost
+                print('New cost: ', x)
 
 def main(fileName, interval):
+    global update_interval
+    update_interval = int(interval)
     serverPort = readTopology(fileName)
     #myServer = Server(int(serverPort))
-    udpServer = UdpServer(int(serverPort), int(interval))
+    udpServer = UdpServer(int(serverPort))
     print('DONE')
-
 
 
 # py chat.py topo 3
