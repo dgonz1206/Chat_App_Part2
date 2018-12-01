@@ -255,8 +255,6 @@ def create_neighbors_ip_and_port():
 
 def step():
     print('this is step')
-    for x in neighbor_ip_and_port:
-        master_socket.sendto((bytes('balls', "utf-8")), (x[0],x[1]))
     menu()
 
 
