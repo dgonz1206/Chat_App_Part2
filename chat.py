@@ -7,12 +7,14 @@ server_list = []
 cost_list = []
 #array of servers
 servers = []
+neighbors = []
 
 #function that receives a file and then reads the contents and saves them in corresponding variables
 def readTopology(topo):
     #array of costs for edges
     edgeCost = []
     global servers
+    global neighbors
     #grabbing the file and reading each line
     top = open(topo+".txt", "r")
     txt_lines = []
@@ -32,7 +34,10 @@ def readTopology(topo):
     for x in range(number_of_servers+2, number_of_edges+number_of_servers+2):
         edgeCost.append((txt_lines[x].split()))
 
+    for x in edgeCost:
+        neighbors.append(int(x[1]))
 
+    print(neighbors)
 
 # server class that creates a server for each client that is launched
 # that way each client is a user
@@ -89,7 +94,6 @@ class Server:
                     connection.close()
                 break
 
-
 # handles the client side of the program such as sending messages to the server, and connections
 class Client:
 
@@ -131,7 +135,6 @@ class Client:
             print('Sender’s Port: <', connection.getpeername()[1], '>')
             print('Message: ', data.decode("utf-8"))
 
-
 # function that sends the message from a specific socket
 def sendMsg(index, message):
     i = index - 1
@@ -139,7 +142,7 @@ def sendMsg(index, message):
     peers[i].send(bytes(message, 'utf-8'))
 
 # first parses the string received then uses it with the class client to connect
-def connect(conString):
+def connect(ip, port):
     myip = listening_socket.getsockname()[0]
     # socketInfo = conString.split(" ")
     # ip = socketInfo[1]
@@ -154,8 +157,12 @@ def connect(conString):
     # elif ipexists == True:
     #     print('Connection already exists can not reconnect to same connection')
     else:
-        Client((socketInfo[1], int(socketInfo[-1])))
+        Client((ip,port))
     menu()
+
+def connector():
+    for server in servers:
+        connect(server[1],server[2])
 
 # this function listens for user commands using simple if else statements
 def step():
@@ -163,21 +170,17 @@ def step():
     time.sleep(3)
     menu()
 
-
 def packets():
     print("This is packets")
     menu()
-
 
 def display():
     print("This is display")
     menu()
 
-
 def disable(listener):
     print("This is display")
     menu()
-
 
 def crash():
     print("This is crash. Bye")
@@ -213,12 +216,10 @@ def menu():
             invalid()
             break
 
-
 # just says invalid command when an invalid command was input in the program
 def invalid():
     print("Error Invalid command")
     menu()
-
 
 def update(input):
     info = input.split(" ")
@@ -239,9 +240,11 @@ def main(fileName, interval):
     readTopology(fileName)
     myServer = Server(int(servers[0][2]))
     myServer.run()
+    # if servers[0][1] == 1:
+    #     connector()
     menu()
 
-# py chat.py topo 3
+# py chat.py topo1 3
 if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2])
 
