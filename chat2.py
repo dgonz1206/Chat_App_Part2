@@ -52,103 +52,6 @@ def readTopology(topo):
     return serverPort
 
 
-# server class that creates a server for each client that is launched
-# that way each client is a user
-# class Server:
-#     # init method that starts off the server
-#     def __init__(self, port):
-#         # getting the host name (IP) using sockets
-#         host = socket.gethostname()
-#         try:
-#             # setting the ip and port to a socket
-#             listening_socket.bind((host, port))
-#         except WindowsError:
-#             print('Failed to create socket')
-#             exit()
-#         # enable the server to accept connections by using sock.listen
-#         listening_socket.listen(1)
-#         # creating a thread for the run function
-#         listening_thread = threading.Thread(target=self.run)
-#         # setting a thread to a daemon allows it to shut down while there are still threads running
-#         listening_thread.daemon = True
-#         listening_thread.start()
-#         menu()
-#
-#
-#     # function that accepts the connection from the client and adds the connection to the list of sockets
-#     def run(self):
-#         while True:
-#             connection, address = listening_socket.accept()
-#             connection_thread = threading.Thread(target=self.connection_handler, args=(connection,))
-#             connection_thread.daemon = True
-#             connection_thread.start()
-#             peers.append(connection)
-#             print('The connection to peer ', connection.getpeername()[0], ' is successfully established ')
-#
-#     # this is the part of code where the server receives the message from the client
-#     def connection_handler(self, connection):
-#         while True:
-#             # added try/except for when a client disconnects in a weird way
-#             try:
-#                 data = connection.recv(1024)
-#                 print('Message received from ', connection.getpeername()[0])
-#                 #print('Sender’s Port: <', connection.getpeername()[1], '>')
-#                 print('Message: ', data.decode("utf-8"))
-#             except socket.error:
-#                 print('Peer ', connection.getpeername()[0], ' terminates the connection')
-#                 if len(peers) > 0 and connection in peers:
-#                     peers.remove(connection)
-#                     connection.close()
-#                 return
-#             # checks to see if it receiving data from a socket if is not receiving data the socket is then removed and closed
-#             if not data:
-#                 print('Peer ', connection.getpeername()[0], ' terminates the connection')
-#                 if len(peers) > 0 and connection in peers:
-#                     peers.remove(connection)
-#                     connection.close()
-#                 break
-
-
-# handles the client side of the program such as sending messages to the server, and connections
-# class Client:
-#
-#     # this function initializes the client by creating a socket
-#     def __init__(self, ip_port):
-#         connecting_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#         try:
-#             print('Connecting...')
-#             # connects to the server and sends ip and port
-#             connecting_socket.connect(ip_port)
-#         except WindowsError:
-#             print('Connection failed.')
-#             return
-#         print('The connection to peer ', connecting_socket.getpeername()[0], ' is successfully established ')
-#         client_thread = threading.Thread(target=self.connection_handler, args=(connecting_socket,))
-#         client_thread.daemon = True
-#         client_thread.start()
-#         peers.append(connecting_socket)
-#
-#     # handler used to receive the message from the server and then sends to a specific client
-#     # almost same as server handler
-#     def connection_handler(self, connection):
-#         while True:
-#             try:
-#                 data = connection.recv(1024)
-#             except socket.error:
-#                 print('Peer ', connection.getpeername()[0], ' terminates the connection')
-#                 if len(peers) > 0 and connection in peers:
-#                     peers.remove(connection)
-#                     connection.close()
-#                 return
-#             if not data:
-#                 print('Peer ', connection.getpeername()[0], ' terminate the connection')
-#                 if len(peers) > 0 and connection in peers:
-#                     peers.remove(connection)
-#                     connection.close()
-#                 break
-#             print('Message received from ', connection.getpeername()[0])
-#             print('Sender’s Port: <', connection.getpeername()[1], '>')
-#             print('Message: ', data.decode("utf-8"))
 
 
 class UdpServer:
@@ -186,61 +89,6 @@ class UdpServer:
             print('Message: ', data.decode("utf-8"))
 
 
-# class UdpClient:
-#
-#     # this function initializes the client by creating a socket
-#     def __init__(self, ip_port, message):
-#         self.send_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-#         #client_thread = threading.Thread(target=self.connection_handler, args=((ip_port,message),))
-#         #client_thread.daemon = True
-#         #client_thread.start()
-#
-#     # handler used to receive the message from the server and then sends to a specific client
-#     # almost same as server handler
-#     def sendMsg(self, ip_port, message ):
-#         #ip_port,message = ip_port_message[0], ip_port_message[1]
-#
-#         self.send_sock.sendto(message, ip_port)
-#         # while True:
-#         #     try:
-#         #         data = connection.recv(1024)
-#         #     except socket.error:
-#         #         print('Peer 2',' terminates the connection')
-#         #         if len(peers) > 0 and connection in peers:
-#         #             peers.remove(connection)
-#         #             connection.close()
-#         #         return
-#         #     if not data:
-#         #         print('Peer ', ' terminate the connection')
-#         #     print('Message received from ', connection.getpeername()[0])
-#         #     print('Sender’s Port: <', connection.getpeername()[1], '>')
-#         #     print('Message: ', data.decode("utf-8"))
-
-# connects to all neighbors and check for duplicates
-# def connect():
-#     for x in neighbor_ip_and_port:
-#         if duplicate_socket_check(x):
-#             print('dup detected: ', x)
-#         else:
-#             try:
-#                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-#                 # add ip address for x[0]
-#                 sock.connect((x[0], int(x[1])))
-#                 neighbor_sockets.append(sock)
-#                 print(sock.getpeername()[1], ' added')
-#             except:
-#                 print('connection failed: ', x)
-#     menu()
-
-
-# checks if neighbor is already connected
-# def duplicate_socket_check(x):
-#     dup = False
-#     for sockets in neighbor_sockets:
-#         if int(x[1]) == (sockets.getpeername()[1]):
-#             dup = True
-#     return dup
-
 
 # gets ip address and port number and adds to a list of tuples
 def create_neighbors_ip_and_port():
@@ -266,19 +114,7 @@ def periodic():
 
 
 
-# def send_packets():
-#     global neighbor_sockets
-#     if neighbor_sockets != []:
-#         for sock in neighbor_sockets:
-#             try:
-#                 sock.send(bytes('poop', "utf-8"))
-#                 print('message successfully sent')
-#             except:
-#                 print('message NOT sent to', sock)
-#     else:
-#         print('no neighbors connected')
 
-#
 def packets():
     print("This is packets")
     menu()
