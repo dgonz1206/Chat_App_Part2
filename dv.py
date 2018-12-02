@@ -117,7 +117,7 @@ def findIPwithPort(port):
             return x[0]
 
 # grabs the server and cost that correlate to each other
-# then puts them into a dictionary to make it easier 
+# then puts them into a dictionary to make it easier
 # to append them to the graph list
 def graphAppender(s2, costs):
     global graph
@@ -131,7 +131,7 @@ def graphAppender(s2, costs):
             cID = i
 
     # going through the dictionary checking if there is an INF and a 0
-    # because we do not want to append these to the list 
+    # because we do not want to append these to the list
     # once were done checking we check if the data we are about to append
     #is not already in the list if not we append to the list
     for i in range(1,length):
@@ -177,7 +177,7 @@ def bellManFord(node, vertices):
 
     return calcs
 
-#finds the amount of vertices depending on what information has been 
+#finds the amount of vertices depending on what information has been
 #input to the graph
 def verticesFinder():
     vertices = 0
@@ -256,7 +256,7 @@ def packets():
     print("Number of distance vector packets received since last invocation: ", packs)
     menu()
 
-#uses the bellford algorithm and then prints out the tables 
+#uses the bellford algorithm and then prints out the tables
 def display():
     print("display SUCCESS")
     tableInfo = generateTable()
@@ -273,7 +273,7 @@ def display():
     print("-----------------------------------------------")
     menu()
 
-#finds the server Id 
+#finds the server Id
 def findServerID():
     serverID = server_list[0][0]
     return serverID
@@ -298,7 +298,7 @@ def isNeighborCheck(id, oID):
             isNeighbor = True
     return isNeighbor
 
-#simulates a crash 
+#simulates a crash
 def crash():
     print("crash SUCCESS")
     exit()
@@ -340,7 +340,7 @@ def invalid():
     print("Error Invalid command")
     menu()
 
-# updates the cost for a edge depending on the 2 serves inputed 
+# updates the cost for a edge depending on the 2 serves inputed
 def update(input):
     info = input.split(" ")
     server1 = info[1]
