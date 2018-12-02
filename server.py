@@ -11,7 +11,6 @@ packs = 0
 number_of_neighbors = 0
 neighbor_ip_and_port = []
 update_interval = 0
-mess = ""
 master_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 master_ip_port = (None, None)
 
@@ -78,7 +77,6 @@ class UdpServer:
     # receives messages
     def handler(self, sock):
         while True:
-            global mess
             global packs
             packs = packs + 1
             data, addr = sock.recvfrom(1024)
@@ -102,8 +100,34 @@ class UdpServer:
                 ports.append(b4_split[x])
             for x in costs_at:
                 costs.append(b4_split[x])
-            print(costs)
+            for x in server_id_2_at:
+                server_id_2.append(b4_split[x])
+            graphAppender(server_id_2, costs)
+            print("RECEIVED MESSAGE FROM SERVER ", )
 
+
+def graphAppender(s2, costs):
+    global graph
+    mapped = dict(zip(s2,costs))
+    length = len(s2) +1
+    cID = 0
+    for i in range(1,length):
+        if mapped[str(i)] == '0':
+            cID = i
+
+    for i in range(1,length):
+        if mapped[str(i)] != 'inf' and mapped[str(i)] != '0':
+            ary = [str(cID),str(i),mapped[str(i)]]
+            if graphChecker(ary) == False:
+                graph.append([str(cID),str(i),mapped[str(i)]])
+
+def graphChecker(ary):
+    isIn = False
+    for x in graph:
+        if x[0] == ary[0] and x[1] == ary[1] and x[2] == ary[2]:
+            isIn = True
+
+    return isIn
 
 # gets ip address and port number and adds to a list of tuples
 def create_neighbors_ip_and_port():
@@ -124,12 +148,10 @@ def bellManFord(node, vertices):
     calcs[node] = 0
 
     # doing this for the amount of vertices
-    for i in range(vertices-1):
+    for i in range(3):
         # then going through the edges and finding out the best cost path
         # graph contains all the edges
         for x, y, z in graph:
-            # if calcs[x-1] != float("Inf") and calcs[x-1] + z < calcs[y-1]:
-            #     calcs[y-1] = calcs[x-1] + z
             if calcs[int(x)-1] != float("Inf") and calcs[int(x)-1] + int(z) < calcs[int(y)-1]:
                 calcs[int(y)-1] = calcs[int(x)-1] + int(z)
 
@@ -143,9 +165,6 @@ def verticesFinder():
         elif y > x:
             vertices = y
     return vertices
-
-
-
 
 # creates the full cost table after going through the bellman forde algorithm
 def generateTable():
@@ -201,6 +220,9 @@ def find_cost(server_num):
 
 
 def step():
+    msg_format = message_format()
+    for x in neighbor_ip_and_port:
+        master_socket.sendto((bytes(str(msg_format), "utf-8")), x)
     print("step SUCCESS")
     menu()
 
@@ -210,10 +232,6 @@ def periodic():
         time.sleep(update_interval)
         for x in neighbor_ip_and_port:
             master_socket.sendto((bytes(str(msg_format), "utf-8")), x)
-        ##for x, y in zip(neighbor_ip_and_port, graph):
-            ##master_socket.sendto((bytes(str(y[0]), "utf-8")), (x[0], x[1]))
-        # for x, y in zip(neighbor_ip_and_port, graph):
-        #     master_socket.sendto((bytes(str(y[0]), "utf-8")), (x[0], x[1]))
 
 def packets():
     print("packets SUCCESS")
@@ -236,13 +254,13 @@ def display():
     print("-----------------------------------------------")
     menu()
 
-
 def findServerID():
-    serverID = 0
-    for i in server_list:
-        if i[2] == master_ip_port[1]:
-            serverID = i[0]
+    serverID = server_list[0][0]
+    # for i in server_list:
+    #     if i[2] == master_ip_port[1]:
+    #         serverID = i[0]
     return serverID
+
 def disable(senString):
     info = senString.split(" ")
     dID = info[1]
