@@ -57,7 +57,7 @@ class UdpServer:
     def __init__(self, port):
         host = socket.gethostname()
         global master_ip_port
-        master_ip_port = (host, port)
+        master_ip_port = (socket.gethostbyname(host), port)
         self.listening_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         try:
             self.listening_sock.bind((host, port))
@@ -67,7 +67,7 @@ class UdpServer:
         udp_listening_thread = threading.Thread(target=self.run())
         udp_listening_thread.daemon = True
         udp_listening_thread.start()
-        #thread to send periodic message(routing updates)
+        # thread to send periodic message(routing updates)
         periodic_thread = threading.Thread(target=periodic)
         periodic_thread.daemon = True
         periodic_thread.start()
@@ -85,9 +85,9 @@ class UdpServer:
             global packs
             packs = packs + 1
             data, addr = sock.recvfrom(1024)
-            print('Message from: ', addr)
+            #print('Message from: ', addr)
             mess = data.decode("utf-8")
-            print('Message: ', data.decode("utf-8"))
+            #print('Message: ', data.decode("utf-8"))
 
 
 # gets ip address and port number and adds to a list of tuples
@@ -100,24 +100,26 @@ def create_neighbors_ip_and_port():
                 #change server[1] to ur ip address
                 neighbor_ip_and_port.append((server[1], int(server[2])))
 
-#bell man ford algorithm
+# bell man ford algorithm
 def bellManFord(node):
-    #initiating the array to have all inf
+    # initiating the array to have all inf
     calcs = [float("Inf")] * vertices
-    #then changing the known node to 0 since the cost to itself is 0
+    # then changing the known node to 0 since the cost to itself is 0
     calcs[node] = 0
 
-    #doing this for the amount of vertices
+    # doing this for the amount of vertices
     for i in range(vertices-1):
-        #then going through the edges and finding out the best cost path
-        #graph contains all the edges 
+        # then going through the edges and finding out the best cost path
+        # graph contains all the edges
         for x, y, z in graph:
             if calcs[x-1] != float("Inf") and calcs[x-1] + z < calcs[y-1]:
                 calcs[y-1] = calcs[x-1] + z
+            # if calcs[int(x)-1] != float("Inf") and calcs[int(x)-1] + int(z) < calcs[int(y)-1]:
+            #     calcs[int(y)-1] = calcs[int(x)-1] + int(z)
 
     return calcs
 
-#creates the full cost table after going through the bellman forde algorithm
+# creates the full cost table after going through the bellman forde algorithm
 def generateTable():
     table = []
     for i in range(vertices):
@@ -125,15 +127,41 @@ def generateTable():
         table.append(row)
     return table
 
+def message_format():
+    msg_format =[]
+    table = generateTable()
+    master_server_id = 9999
+    # finding the server id of this class
+    for x in server_list:
+        if int(x[2]) == master_ip_port[1]:
+            master_server_id = int(x[0])
+    #num_of_update_fields
+    msg_format.append(number_of_neighbors)
+    #server_port
+    msg_format.append(master_ip_port[1])
+    #server_ip
+    msg_format.append(master_ip_port[0])
+    for x in server_list:
+        if int(x[2]) == master_ip_port[1]:
+            nth_server = [x[1], int(x[2]), int(x[0]), 0]
+        else:
+            nth_server = [x[1], int(x[2]), int(x[0]), table[master_server_id-1][int(x[0])-1]]
+        msg_format.append(nth_server)
+    for xx in msg_format:
+        print(xx)
+    return msg_format
+
+
 def step():
     print('this is step')
+    print(generateTable())
     menu()
 
 def periodic():
     while True:
+        #msg_format = message_format()
         time.sleep(update_interval)
-        for x ,y in zip(neighbor_ip_and_port, graph):
-            
+        for x, y in zip(neighbor_ip_and_port, graph):
             master_socket.sendto((bytes(str(y[0]), "utf-8")), (x[0], x[1]))
 
 def packets():
@@ -142,6 +170,7 @@ def packets():
 
 def display():
     print("This is display")
+    print(generateTable())
     menu()
 
 def disable(senString):
@@ -218,7 +247,6 @@ def main(fileName, interval):
     serverPort = readTopology(fileName)
     #myServer = Server(int(serverPort))
     udpServer = UdpServer(int(serverPort))
-    print('DONE')
 
 
 # py chat.py topo 3
