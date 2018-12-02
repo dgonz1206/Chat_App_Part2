@@ -10,8 +10,6 @@ graph = []
 packs = 0
 number_of_neighbors = 0
 neighbor_ip_and_port = []
-neighbor_sockets = []
-client_sockets = []
 update_interval = 0
 mess = ""
 master_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -128,6 +126,8 @@ def verticesFinder():
     return vertices
 
 
+
+
 # creates the full cost table after going through the bellman forde algorithm
 def generateTable():
     vertices = verticesFinder()
@@ -163,8 +163,7 @@ def message_format():
 
 
 def step():
-    print('this is step')
-    print(generateTable())
+    print("step SUCCESS")
     menu()
 
 def periodic():
@@ -175,20 +174,54 @@ def periodic():
             master_socket.sendto((bytes(str(y[0]), "utf-8")), (x[0], x[1]))
 
 def packets():
+    print("packets SUCCESS")
     print("Number of distance vector packets received since last invocation: ", packs)
     menu()
 
 def display():
-    print("This is display")
-    print(generateTable())
+    print("display SUCCESS")
+    tableInfo = generateTable()
+    print("\t\t  Routing Table")
+    print("-----------------------------------------------")
+    print("Destination Server \t Hop Server \t Cost")
+    index = 1
+    for i in tableInfo:
+        count = 1
+        for x in i:
+            print(index, "\t\t\t", count, "\t\t", x)
+            count+=1
+        index+=1
+    print("-----------------------------------------------")
     menu()
 
+
+def findServerID():
+    serverID = 0
+    for i in server_list:
+        if i[2] == master_ip_port[1]:
+            serverID = i[0]
+    return serverID
 def disable(senString):
-    print("This is disable")
+    info = senString.split(" ")
+    dID = info[1]
+    serverID = findServerID()
+    isNeighbor = isNeighborCheck(serverID, dID)
+    if isNeighbor == True:
+        print(senString, "SUCCESS")
+    elif isNeighbor == False:
+        print(senString, "Error specified server is not a neighbor.")
     menu()
+
+def isNeighborCheck(id, oID):
+    isNeighbor = False
+    for x,y,z in graph:
+        if int(x) == int(id) and int(y) == int(oID):
+            isNeighbor = True
+    return isNeighbor
+
 
 def crash():
-    print("This is crash. Bye")
+    print("crash SUCCESS")
     exit()
     menu()
 
