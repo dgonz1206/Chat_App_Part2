@@ -13,7 +13,6 @@ neighbor_ip_and_port = []
 neighbor_sockets = []
 client_sockets = []
 update_interval = 0
-vertices = 0
 mess = ""
 master_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 master_ip_port = (None, None)
@@ -25,7 +24,7 @@ def readTopology(topo):
     # array of costs for edges
     global graph
     global number_of_neighbors
-    global vertices
+    vertices = 0
 
     # grabbing the file and reading each line
     top = open(topo+".txt", "r")
@@ -101,7 +100,7 @@ def create_neighbors_ip_and_port():
                 neighbor_ip_and_port.append((server[1], int(server[2])))
 
 # bell man ford algorithm
-def bellManFord(node):
+def bellManFord(node, vertices):
     # initiating the array to have all inf
     calcs = [float("Inf")] * vertices
     # then changing the known node to 0 since the cost to itself is 0
@@ -119,11 +118,22 @@ def bellManFord(node):
 
     return calcs
 
+def verticesFinder():
+    vertices = 0
+    for x,y,z in graph:
+        if x > y:
+            vertices = x
+        elif y > x:
+            vertices = y
+    return vertices
+
+
 # creates the full cost table after going through the bellman forde algorithm
 def generateTable():
+    vertices = verticesFinder()
     table = []
     for i in range(vertices):
-        row = bellManFord(i)
+        row = bellManFord(i,vertices)
         table.append(row)
     return table
 
