@@ -3,8 +3,6 @@ import threading
 import time
 
 listening_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-UDP_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-
 server_list = []
 graph = []
 packs = 0
@@ -36,18 +34,21 @@ def readTopology(topo):
     vertices = int(txt_lines[0])
     number_of_neighbors = int(txt_lines[1])
 
+    #going through and saving the servers to an array
     for x in range(2, vertices+2):
         server_list.append(txt_lines[x].split())
 
     # grabbing the port for this specific client/server
     serverPort = server_list[0][2]
 
+    #going through and grabbing the costs for each server and neighbor pair
     for x in range(vertices+2, number_of_neighbors+vertices+2):
         graph.append((txt_lines[x].split()))
-    # new
+    # calling method to create neighbors ip and port
     create_neighbors_ip_and_port()
 
     return serverPort
+
 
 class UdpServer:
     def __init__(self, port):
@@ -95,7 +96,6 @@ class UdpServer:
             server_id_2_at = [2, 6, 10, 14]
             server_id = []
             
-            #print(b4_split)
             for x in ports_at:
                 ports.append(b4_split[x])
             for x in costs_at:
@@ -105,28 +105,37 @@ class UdpServer:
             graphAppender(server_id_2, costs)
             print("RECEIVED MESSAGE FROM SERVER ", )
 
-
+# grabs the server and cost that correlate to each other
+# then puts them into a dictionary to make it easier 
+# to append them to the graph list
 def graphAppender(s2, costs):
     global graph
+    #combining the two arrays into a dict
     mapped = dict(zip(s2,costs))
     length = len(s2) +1
     cID = 0
+    # finding the server id corresponding to the data it belongs to
     for i in range(1,length):
         if mapped[str(i)] == '0':
             cID = i
 
+    # going through the dictionary checking if there is an INF and a 0
+    # because we do not want to append these to the list 
+    # once were done checking we check if the data we are about to append
+    #is not already in the list if not we append to the list
     for i in range(1,length):
         if mapped[str(i)] != 'inf' and mapped[str(i)] != '0':
             ary = [str(cID),str(i),mapped[str(i)]]
             if graphChecker(ary) == False:
                 graph.append([str(cID),str(i),mapped[str(i)]])
 
+#simple function checking the graph to see if the data that is about to appended is
+#or is not in the graph already
 def graphChecker(ary):
     isIn = False
     for x in graph:
         if x[0] == ary[0] and x[1] == ary[1] and x[2] == ary[2]:
             isIn = True
-
     return isIn
 
 # gets ip address and port number and adds to a list of tuples
@@ -157,6 +166,8 @@ def bellManFord(node, vertices):
 
     return calcs
 
+#finds the amount of vertices depending on what information has been 
+#input to the graph
 def verticesFinder():
     vertices = 0
     for x,y,z in graph:
@@ -174,7 +185,8 @@ def generateTable():
         row = bellManFord(i,vertices)
         table.append(row)
     return table
-
+# function that puts all the needed information to be sent to the other servers
+# in the needed format
 def message_format():
     msg_format = []
     table = generateTable()
@@ -183,8 +195,6 @@ def message_format():
     for x in server_list:
         if int(x[2]) == master_ip_port[1]:
             master_server_id = int(x[0])
-    # print('table:\n', table)
-    # print('graph:\n', graph)
 
     # num_of_update_fields
     msg_format.append(number_of_neighbors)
@@ -203,22 +213,17 @@ def message_format():
                 nth_server = [x[1], int(x[2]), int(x[0]), float("Inf")]
         for x in nth_server:
             msg_format.append(x)
-    # for xx in msg_format:
-    #     print(xx)
     return msg_format
 
-
+# function that finds the cost depending on the server received
 def find_cost(server_num):
     cond = False
     for x in graph:
-        # print('x[1]:', x[1])
-        # print('serv_num', server_num)
         if server_num == int(x[1]):
-            # print('MATCH!')
             cond = True
     return cond
 
-
+#sends the message to all the servers when called in the menu
 def step():
     msg_format = message_format()
     for x in neighbor_ip_and_port:
@@ -226,6 +231,7 @@ def step():
     print("step SUCCESS")
     menu()
 
+#does a periodic update with the specified interval
 def periodic():
     while True:
         msg_format = message_format()
@@ -233,11 +239,13 @@ def periodic():
         for x in neighbor_ip_and_port:
             master_socket.sendto((bytes(str(msg_format), "utf-8")), x)
 
+#prints out the amount of packets received
 def packets():
     print("packets SUCCESS")
     print("Number of distance vector packets received since last invocation: ", packs)
     menu()
 
+#uses the bellford algorithm and then prints out the tables 
 def display():
     print("display SUCCESS")
     tableInfo = generateTable()
@@ -254,13 +262,12 @@ def display():
     print("-----------------------------------------------")
     menu()
 
+#finds the server Id 
 def findServerID():
     serverID = server_list[0][0]
-    # for i in server_list:
-    #     if i[2] == master_ip_port[1]:
-    #         serverID = i[0]
     return serverID
 
+#disables the connection of a node by deleting all information corresponding to that ip and port
 def disable(senString):
     info = senString.split(" ")
     dID = info[1]
@@ -272,6 +279,7 @@ def disable(senString):
         print(senString, "Error specified server is not a neighbor.")
     menu()
 
+#simple check to see if the two servers are neighbors of each other
 def isNeighborCheck(id, oID):
     isNeighbor = False
     for x,y,z in graph:
@@ -279,12 +287,13 @@ def isNeighborCheck(id, oID):
             isNeighbor = True
     return isNeighbor
 
-
+#simulates a crash 
 def crash():
     print("crash SUCCESS")
     exit()
     menu()
 
+#simple menu that listens for commands through out the whole time the program is being run
 def menu():
     valid_commands = ['update', 'step', 'packets', 'display', 'disable', 'crash', 'connect']
     print("MENU:")
@@ -323,15 +332,19 @@ def invalid():
     print("Error Invalid command")
     menu()
 
-
+# updates the cost for a edge depending on the 2 serves inputed 
 def update(input):
     info = input.split(" ")
     server1 = info[1]
     server2 = info[2]
     cost = info[3]
     replace_cost(server1, server2, cost)
+    print(info, "SUCCESS")
     menu()
 
+#called from update which receives the 2 servers and the cost
+#and then finds the two servers in the graph and then changes the cost
+#to the desired cost
 def replace_cost(server1, server2, cost):
     for x in graph:
         if x[0] == server1 and x[1] == server2 or x[0] == server2 and x[1] == server1:
@@ -344,16 +357,17 @@ def replace_cost(server1, server2, cost):
                 x[2] = cost
                 print('New cost: ', x)
 
+#the main function that stars it all
 def main(fileName, interval):
     global update_interval
     update_interval = int(interval)
     serverPort = readTopology(fileName)
-    #myServer = Server(int(serverPort))
     udpServer = UdpServer(int(serverPort))
 
 
-# py chat.py topo 3
+# py chat.py -t topo -i 3
+#this is where we grab the command line arguments on the first launch
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[2], sys.argv[3])
 
 
