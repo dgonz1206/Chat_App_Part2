@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5f7806d8-05ae-4ff9-b951-90e0267c4b47" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server.py" beforeDir="false" afterPath="$PROJECT_DIR$/server.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -18,19 +17,19 @@
           <entry key="project.closed" value="9" />
           <entry key="project.open.time.4" value="1" />
           <entry key="project.open.time.5" value="2" />
-          <entry key="project.open.time.6" value="6" />
+          <entry key="project.open.time.6" value="7" />
           <entry key="project.open.time.9" value="1" />
-          <entry key="project.opened" value="10" />
+          <entry key="project.opened" value="11" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
-          <entry key="py" value="5502" />
+          <entry key="py" value="5530" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="Python" value="5502" />
+          <entry key="Python" value="5530" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -50,7 +49,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/chat.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="-4880">
+            <state relative-caret-position="160">
               <caret line="9" column="9" selection-start-line="9" selection-start-column="9" selection-end-line="9" selection-end-column="9" />
             </state>
           </provider>
@@ -59,12 +58,10 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/server.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="680">
-              <caret line="125" selection-start-line="125" selection-end-line="125" />
+            <state relative-caret-position="500">
+              <caret line="180" selection-start-line="180" selection-end-line="181" selection-end-column="19" />
               <folding>
                 <element signature="e#0#26#0" expanded="true" />
-                <marker date="1543708884095" expanded="true" signature="4199:4950" ph="..." />
-                <marker date="1543708884095" expanded="true" signature="4961:4966" ph="..." />
               </folding>
             </state>
           </provider>
@@ -175,7 +172,6 @@
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1920" height="1080" extended-state="6" />
-    <editor active="true" />
     <layout>
       <window_info content_ui="combo" id="Project" order="0" weight="0.07569297" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
@@ -219,31 +215,20 @@
     <option name="myLimit" value="2678400000" />
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/chat2.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1400">
-          <caret line="72" column="24" selection-end-line="203" />
-          <folding>
-            <element signature="e#0#26#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/chat2.py" />
     <entry file="file://$PROJECT_DIR$/chat.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-4880">
+        <state relative-caret-position="160">
           <caret line="9" column="9" selection-start-line="9" selection-start-column="9" selection-end-line="9" selection-end-column="9" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/server.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="680">
-          <caret line="125" selection-start-line="125" selection-end-line="125" />
+        <state relative-caret-position="500">
+          <caret line="180" selection-start-line="180" selection-end-line="181" selection-end-column="19" />
           <folding>
             <element signature="e#0#26#0" expanded="true" />
-            <marker date="1543708884095" expanded="true" signature="4199:4950" ph="..." />
-            <marker date="1543708884095" expanded="true" signature="4961:4966" ph="..." />
           </folding>
         </state>
       </provider>

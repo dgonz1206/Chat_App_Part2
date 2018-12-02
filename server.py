@@ -82,9 +82,27 @@ class UdpServer:
             global packs
             packs = packs + 1
             data, addr = sock.recvfrom(1024)
-            #print('Message from: ', addr)
-            mess = data.decode("utf-8")
-            #print('Message: ', data.decode("utf-8"))
+            msg = data.decode("utf-8")
+            msg = msg.replace(',', '')
+            msg = msg.replace(']', '')
+            msg = msg.replace('[', '')
+            msg = msg.replace("'", "")
+            b4_split = msg.split(' ')
+            b4_split = b4_split[3:]
+            ports = []
+            ports_at = [1, 5, 9, 13]
+            costs = []
+            costs_at = [3, 7, 11, 15]
+            server_id_2 = []
+            server_id_2_at = [2, 6, 10, 14]
+            server_id = []
+            
+            #print(b4_split)
+            for x in ports_at:
+                ports.append(b4_split[x])
+            for x in costs_at:
+                costs.append(b4_split[x])
+            print(costs)
 
 
 # gets ip address and port number and adds to a list of tuples
@@ -99,6 +117,7 @@ def create_neighbors_ip_and_port():
 
 # bell man ford algorithm
 def bellManFord(node, vertices):
+    vertices = int(vertices)
     # initiating the array to have all inf
     calcs = [float("Inf")] * vertices
     # then changing the known node to 0 since the cost to itself is 0
@@ -109,10 +128,10 @@ def bellManFord(node, vertices):
         # then going through the edges and finding out the best cost path
         # graph contains all the edges
         for x, y, z in graph:
-            if calcs[x-1] != float("Inf") and calcs[x-1] + z < calcs[y-1]:
-                calcs[y-1] = calcs[x-1] + z
-            # if calcs[int(x)-1] != float("Inf") and calcs[int(x)-1] + int(z) < calcs[int(y)-1]:
-            #     calcs[int(y)-1] = calcs[int(x)-1] + int(z)
+            # if calcs[x-1] != float("Inf") and calcs[x-1] + z < calcs[y-1]:
+            #     calcs[y-1] = calcs[x-1] + z
+            if calcs[int(x)-1] != float("Inf") and calcs[int(x)-1] + int(z) < calcs[int(y)-1]:
+                calcs[int(y)-1] = calcs[int(x)-1] + int(z)
 
     return calcs
 
@@ -132,34 +151,53 @@ def verticesFinder():
 def generateTable():
     vertices = verticesFinder()
     table = []
-    for i in range(vertices):
+    for i in range(int(vertices)):
         row = bellManFord(i,vertices)
         table.append(row)
     return table
 
 def message_format():
-    msg_format =[]
+    msg_format = []
     table = generateTable()
     master_server_id = 9999
     # finding the server id of this class
     for x in server_list:
         if int(x[2]) == master_ip_port[1]:
             master_server_id = int(x[0])
-    #num_of_update_fields
+    # print('table:\n', table)
+    # print('graph:\n', graph)
+
+    # num_of_update_fields
     msg_format.append(number_of_neighbors)
-    #server_port
+    # server_port
     msg_format.append(master_ip_port[1])
-    #server_ip
+    # server_ip
     msg_format.append(master_ip_port[0])
     for x in server_list:
         if int(x[2]) == master_ip_port[1]:
             nth_server = [x[1], int(x[2]), int(x[0]), 0]
         else:
-            nth_server = [x[1], int(x[2]), int(x[0]), table[master_server_id-1][int(x[0])-1]]
-        msg_format.append(nth_server)
-    for xx in msg_format:
-        print(xx)
+            # check if we a cost for specific server id. if true: add cost, Else: add 'inf'
+            if find_cost(int(x[0])):
+                nth_server = [x[1], int(x[2]), int(x[0]), table[master_server_id - 1][int(x[0]) - 1]]
+            else:
+                nth_server = [x[1], int(x[2]), int(x[0]), float("Inf")]
+        for x in nth_server:
+            msg_format.append(x)
+    # for xx in msg_format:
+    #     print(xx)
     return msg_format
+
+
+def find_cost(server_num):
+    cond = False
+    for x in graph:
+        # print('x[1]:', x[1])
+        # print('serv_num', server_num)
+        if server_num == int(x[1]):
+            # print('MATCH!')
+            cond = True
+    return cond
 
 
 def step():
@@ -168,10 +206,14 @@ def step():
 
 def periodic():
     while True:
-        #msg_format = message_format()
+        msg_format = message_format()
         time.sleep(update_interval)
-        for x, y in zip(neighbor_ip_and_port, graph):
-            master_socket.sendto((bytes(str(y[0]), "utf-8")), (x[0], x[1]))
+        for x in neighbor_ip_and_port:
+            master_socket.sendto((bytes(str(msg_format), "utf-8")), x)
+        ##for x, y in zip(neighbor_ip_and_port, graph):
+            ##master_socket.sendto((bytes(str(y[0]), "utf-8")), (x[0], x[1]))
+        # for x, y in zip(neighbor_ip_and_port, graph):
+        #     master_socket.sendto((bytes(str(y[0]), "utf-8")), (x[0], x[1]))
 
 def packets():
     print("packets SUCCESS")
