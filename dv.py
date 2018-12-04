@@ -182,9 +182,9 @@ def bellManFord(node, vertices):
 def verticesFinder():
     vertices = 0
     for x,y,z in graph:
-        if x > y:
+        if x > y and int(x) > int(vertices):
             vertices = x
-        elif y > x:
+        elif y > x and int(y) > int(vertices):
             vertices = y
     return vertices
 
@@ -376,7 +376,7 @@ def main(fileName, interval):
 # py chat.py -t topo -i 3
 #this is where we grab the command line arguments on the first launch
 if __name__ == "__main__":
-    main(sys.argv[2], int(sys.argv[4]))
+    main(sys.argv[1], int(sys.argv[2]))
 
 
 
