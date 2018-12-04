@@ -123,9 +123,12 @@ def updatePrices():
     for i in range(len(graph)):
         for j in range(len(graph)):
             if graph[i][0] == graph[j][1] and graph[i][1] == graph[j][0]:
-                if graph[i][2] < graph[j][2] and graph[j][2] != 'inf':
-                    graph[i][2] == graph[j][2]
-        
+                if graph[i][2] > graph[j][2] and graph[j][2] != 'inf':
+                    graph[i][2] = graph[j][2]
+                if graph[j][2] > graph[i][2] and graph[i][2] != 'inf':
+                    graph[j][2] = graph[i][2]
+
+
 # grabs the server and cost that correlate to each other
 # then puts them into a dictionary to make it easier
 # to append them to the graph list
@@ -274,7 +277,7 @@ def packets():
 
 #uses the bellford algorithm and then prints out the tables
 def display():
-    updatePrices()
+    #updatePrices()
     print("display SUCCESS")
     tableInfo = generateTable()
     print("\t\t  Routing Table")
