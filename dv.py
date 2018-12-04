@@ -108,7 +108,8 @@ class UdpServer:
             for x in server_id_2_at:
                 server_id_2.append(b4_split[x])
             graphAppender(server_id_2, costs)
-            #print("RECEIVED MESSAGE FROM SERVER ", server_id)
+
+            print("RECEIVED MESSAGE FROM SERVER ", server_id)
 
 #find ip address with port number
 def findIPwithPort(port):
@@ -155,9 +156,11 @@ def create_neighbors_ip_and_port():
     global number_of_neighbors
     for neighbor in graph:
         for server in server_list:
-            if neighbor[1] == server[0]:
+            x = (server[1],int(server[2]))
+            if neighbor[1] == server[0] and x not in neighbor_ip_and_port and x != master_ip_port:
                 #change server[1] to ur ip address
                 neighbor_ip_and_port.append((server[1], int(server[2])))
+    return neighbor_ip_and_port
 
 # bell man ford algorithm
 def bellManFord(node, vertices):
@@ -237,7 +240,8 @@ def find_cost(server_num):
 #sends the message to all the servers when called in the menu
 def step():
     msg_format = message_format()
-    for x in neighbor_ip_and_port:
+    neighs = create_neighbors_ip_and_port()
+    for x in neighs:
         master_socket.sendto((bytes(str(msg_format), "utf-8")), x)
     global packs
     packs = 0
@@ -247,10 +251,14 @@ def step():
 #does a periodic update with the specified interval
 def periodic():
     while True:
+        neighs = create_neighbors_ip_and_port()
         msg_format = message_format()
         time.sleep(update_interval)
-        for x in neighbor_ip_and_port:
+        for x in neighs:
             master_socket.sendto((bytes(str(msg_format), "utf-8")), x)
+
+
+
 
 #prints out the amount of packets received
 def packets():
@@ -381,7 +389,7 @@ def main(fileName, interval):
 # py chat.py -t topo -i 3
 #this is where we grab the command line arguments on the first launch
 if __name__ == "__main__":
-    main(sys.argv[1], int(sys.argv[2]))
+    main(sys.argv[2], int(sys.argv[4]))
 
 
 
