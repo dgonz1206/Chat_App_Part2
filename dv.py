@@ -5,7 +5,7 @@ import time
 listening_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server_list = []
 graph = []
-packs = 0
+packs = -1
 number_of_neighbors = 0
 neighbor_ip_and_port = []
 update_interval = 0
@@ -108,7 +108,7 @@ class UdpServer:
             for x in server_id_2_at:
                 server_id_2.append(b4_split[x])
             graphAppender(server_id_2, costs)
-            print("RECEIVED MESSAGE FROM SERVER ", server_id)
+            #print("RECEIVED MESSAGE FROM SERVER ", server_id)
 
 #find ip address with port number
 def findIPwithPort(port):
@@ -239,6 +239,8 @@ def step():
     msg_format = message_format()
     for x in neighbor_ip_and_port:
         master_socket.sendto((bytes(str(msg_format), "utf-8")), x)
+    global packs
+    packs = 0
     print("step SUCCESS")
     menu()
 
@@ -285,6 +287,8 @@ def disable(senString):
     serverID = findServerID()
     isNeighbor = isNeighborCheck(serverID, dID)
     if isNeighbor == True:
+        master_socket.shutdown(socket.SHUT_RD)
+        #master_socket.close()
         print(senString, "SUCCESS")
     elif isNeighbor == False:
         print(senString, "Error specified server is not a neighbor.")
@@ -300,6 +304,7 @@ def isNeighborCheck(id, oID):
 
 #simulates a crash
 def crash():
+    master_socket.close()
     print("crash SUCCESS")
     exit()
     menu()
