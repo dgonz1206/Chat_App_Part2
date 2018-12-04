@@ -119,7 +119,6 @@ def findIPwithPort(port):
 
 def updatePrices():
     global graph
-    print(graph)
     for i in range(len(graph)):
         for j in range(len(graph)):
             if graph[i][0] == graph[j][1] and graph[i][1] == graph[j][0]:
@@ -277,7 +276,7 @@ def packets():
 
 #uses the bellford algorithm and then prints out the tables
 def display():
-    #updatePrices()
+    updatePrices()
     print("display SUCCESS")
     tableInfo = generateTable()
     print("\t\t  Routing Table")
