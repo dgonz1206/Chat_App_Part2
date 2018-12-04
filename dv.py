@@ -108,7 +108,7 @@ class UdpServer:
             for x in server_id_2_at:
                 server_id_2.append(b4_split[x])
             graphAppender(server_id_2, costs)
-
+            updatePrices()
             print("RECEIVED MESSAGE FROM SERVER ", server_id)
 
 #find ip address with port number
@@ -117,6 +117,15 @@ def findIPwithPort(port):
         if int(x[2]) == int(port):
             return x[0]
 
+def updatePrices():
+    global graph
+    print(graph)
+    for i in range(len(graph)):
+        for j in range(len(graph)):
+            if graph[i][0] == graph[j][1] and graph[i][1] == graph[j][0]:
+                if graph[i][2] < graph[j][2] and graph[j][2] != 'inf':
+                    graph[i][2] == graph[j][2]
+        
 # grabs the server and cost that correlate to each other
 # then puts them into a dictionary to make it easier
 # to append them to the graph list
@@ -257,9 +266,6 @@ def periodic():
         for x in neighs:
             master_socket.sendto((bytes(str(msg_format), "utf-8")), x)
 
-
-
-
 #prints out the amount of packets received
 def packets():
     print("packets SUCCESS")
@@ -268,6 +274,7 @@ def packets():
 
 #uses the bellford algorithm and then prints out the tables
 def display():
+    updatePrices()
     print("display SUCCESS")
     tableInfo = generateTable()
     print("\t\t  Routing Table")
@@ -326,7 +333,6 @@ def menu():
     while True:
         if 'update' in listener:
             update(listener)
-            print("This is update")
             break
         elif listener == 'step':
             step()
@@ -355,13 +361,17 @@ def invalid():
 
 # updates the cost for a edge depending on the 2 serves inputed
 def update(input):
+    
     info = input.split(" ")
-    server1 = info[1]
-    server2 = info[2]
-    cost = info[3]
-    replace_cost(server1, server2, cost)
-    print(info, "SUCCESS")
-    menu()
+    if len(info) > 1:
+        server1 = info[1]
+        server2 = info[2]
+        cost = info[3]
+        replace_cost(server1, server2, cost)
+        print(info, "SUCCESS")
+        menu()
+    else:
+        invalid()
 
 #called from update which receives the 2 servers and the cost
 #and then finds the two servers in the graph and then changes the cost
@@ -369,14 +379,11 @@ def update(input):
 def replace_cost(server1, server2, cost):
     for x in graph:
         if x[0] == server1 and x[1] == server2 or x[0] == server2 and x[1] == server1:
-            if cost == "inf":
-                print('Replacing cost in ', x)
+            if cost == "inf":   
                 x[2] = float("Inf")
-                print('New cost: ', x)
             else:
-                print('Replacing cost in ', x)
                 x[2] = cost
-                print('New cost: ', x)
+
 
 #the main function that stars it all
 def main(fileName, interval):
